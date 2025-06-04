@@ -1,0 +1,6 @@
+[submodule "sallybook-web"]
+	path = sallybook-web
+	url = https://github.com/NikolasEagle/sallybook-web.git
+[submodule "sallybook-api"]
+	path = sallybook-api
+	url = https://github.com/NikolasEagle/sallybook-api.git
