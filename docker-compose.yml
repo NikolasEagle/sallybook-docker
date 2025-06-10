@@ -1,4 +1,5 @@
 services:
+  
   sallybook-web:
     container_name: sallybook-web
     build: ./sallybook-web
@@ -7,7 +8,21 @@ services:
     env_file:
       - ./.env
     networks:
-      - sallybook
+      - newtone
+  
+  sallybook-auth:
+    container_name: sallybook-auth
+    build: ./sallybook-auth
+    env_file:
+      - ./.env
+    networks:
+      - newtone
+    volumes:
+      - dkim_data:/etc/opendkim/keys/:ro
+    depends_on:
+      - sallybook-redis
+      - sallybook-postgresql
+
   sallybook-api:
     container_name: sallybook-api
     build: ./sallybook-api
@@ -15,6 +30,54 @@ services:
       - ./.env
     networks:
       - newtone
+
+  sallybook-postgresql:
+    image: postgres
+    container_name: sallybook-postgresql
+    restart: always
+    # set shared memory limit when using docker-compose
+    shm_size: 128mb
+    # or set shared memory limit when deploy via swarm stack
+    #volumes:
+    #  - type: tmpfs
+    #    target: /dev/shm
+    #    tmpfs:
+    #      size: 134217728 # 128*2^20 bytes = 128Mb
+    env_file:
+      - ./.env
+    volumes:
+      - sallybook_postgres_data:/var/lib/postgresql/data
+    networks:
+      - newtone
+
+  sallybook-adminer:
+    image: adminer
+    container_name: sallybook-adminer
+    restart: always
+    networks:
+      - newtone
+    ports:
+      - 8083:8080
+
+  sallybook-redis:
+    container_name: sallybook-redis
+    image: redis
+    restart: always
+    networks:
+      - newtone
+    volumes:
+      - sallybook_redis_data:/data
+
+  
 networks:
   newtone:
+    external: true
+
+volumes:
+  volumes:
+  moviecat_postgres_data:
+    external: true
+  moviecat_redis_data:
+    external: true
+  dkim_data:
     external: true
