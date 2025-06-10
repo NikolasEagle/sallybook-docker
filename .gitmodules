@@ -4,3 +4,6 @@
 [submodule "sallybook-api"]
 	path = sallybook-api
 	url = https://github.com/NikolasEagle/sallybook-api.git
+[submodule "sallybook-auth"]
+	path = sallybook-auth
+	url = https://github.com/NikolasEagle/sallybook-auth.git
