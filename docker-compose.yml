@@ -3,12 +3,13 @@ services:
   sallybook-web:
     container_name: sallybook-web
     build: ./sallybook-web
-    ports:
-      - 3001:3001
     env_file:
       - ./.env
     networks:
       - newtone
+    depends_on:
+      - sallybook-auth
+      - sallybook-api
   
   sallybook-auth:
     container_name: sallybook-auth
