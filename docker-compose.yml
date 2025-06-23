@@ -1,5 +1,4 @@
 services:
-  
   sallybook-web:
     container_name: sallybook-web
     build: ./sallybook-web
@@ -10,7 +9,7 @@ services:
     depends_on:
       - sallybook-auth
       - sallybook-api
-  
+
   sallybook-auth:
     container_name: sallybook-auth
     build: ./sallybook-auth
@@ -57,8 +56,6 @@ services:
     restart: always
     networks:
       - newtone
-    ports:
-      - 8083:8080
 
   sallybook-redis:
     container_name: sallybook-redis
@@ -69,7 +66,6 @@ services:
     volumes:
       - sallybook_redis_data:/data
 
-  
 networks:
   newtone:
     external: true
