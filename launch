@@ -1,0 +1,103 @@
+#!/bin/bash
+
+# Service Name
+
+service="mousebook"
+
+# Path common secrets store
+
+env_path="/root/secrets/.env"
+
+# Init secrets
+
+source $env_path
+
+# Function getting list of secrets
+
+function get_list_secrets() {
+
+    echo $(docker exec vault vault kv get --format="json" kv/secrets/$1 | jq .data.data)
+
+}
+
+# Function getting secret
+
+function get_secret() {
+
+	echo $(docker exec vault vault kv get --field=$1 kv/secrets/$2)
+
+}
+
+# Getting domain
+
+url=$(get_secret "url" "dns")
+
+user=$(get_secret "user" "dns")
+
+password=$(get_secret "password" "dns")
+
+function get_domain() {
+
+    curl -s "$url?authinfo=$user:$password&out=json&$1" | jq $2 | sed s/\"//g
+
+}
+
+domain=$(get_domain "func=domain" '.doc.elem.[0].name."$"')
+
+# Creating env file
+
+echo "# $service" > .env
+
+echo "" >> .env
+
+keys_smtp=$(echo $(get_list_secrets "smtp") | jq -r 'keys | .[]')
+
+for key_smtp in $keys_smtp; do
+
+    secret=$(get_secret $key_smtp "smtp")
+
+    if [[ $key_smtp == "email" ]]; then
+
+        key="smtp_recipient"
+
+    else
+
+        key=$key_smtp
+
+    fi
+
+    echo "$(echo $key | tr [a-z] [A-Z])=$secret" >> .env
+
+done
+
+keys_service=$(echo $(get_list_secrets $service) | jq -r 'keys | .[]')
+
+for key_service in $keys_service; do
+
+    secret=$(get_secret $key_service $service)
+
+    echo "$(echo $key_service | tr [a-z] [A-Z])=$secret" >> .env
+
+done
+
+echo "URL=https://$service.$domain" >> .env
+
+echo "SMTP_HOST=mail.$domain" >> .env
+
+echo "DOMAIN=$domain" >> .env
+
+echo "SMTP_USER=noreply@$domain" >> .env
+
+echo "DKIM_PRIVATE_FILE_KEY=/etc/opendkim/keys/$domain.private" >> .env
+
+echo "HOST_SERVER_AUTH=\$NEXT_PUBLIC_HOST_SERVER_AUTH" >> .env  
+
+echo "PORT_SERVER_AUTH=\$NEXT_PUBLIC_PORT_SERVER_AUTH" >> .env      
+
+echo "SERVER_API_HOST=\$NEXT_PUBLIC_SERVER_API_HOST" >> .env
+
+echo "SERVER_API_PORT=\$NEXT_PUBLIC_SERVER_API_PORT" >> .env
+
+# Restarting compose
+
+docker compose down; docker compose up -d
