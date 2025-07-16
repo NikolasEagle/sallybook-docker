@@ -4,14 +4,6 @@
 
 service="mousebook"
 
-# Path common secrets store
-
-env_path="/root/secrets/.env"
-
-# Init secrets
-
-source $env_path
-
 # Function getting list of secrets
 
 function get_list_secrets() {
