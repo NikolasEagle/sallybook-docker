@@ -92,4 +92,4 @@ echo "SERVER_API_PORT=\$NEXT_PUBLIC_SERVER_API_PORT" >> .env
 
 # Restarting compose
 
-docker compose down; docker compose up -d
+docker compose down; docker compose build --no-cache; yes | docker builder prune; docker compose up -d
