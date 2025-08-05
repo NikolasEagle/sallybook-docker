@@ -16,5 +16,5 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /root/composes/apps/
+            cd /VDS/composes/apps/
             ./launch_apps
