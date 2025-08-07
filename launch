@@ -90,6 +90,21 @@ echo "SERVER_API_HOST=\$NEXT_PUBLIC_SERVER_API_HOST" >> .env
 
 echo "SERVER_API_PORT=\$NEXT_PUBLIC_SERVER_API_PORT" >> .env
 
+# Creating env.production file for web
+
+echo "#production" > .env.production
+
+host=$(get_secret "host" $service)
+
+source .env
+
+echo "NEXT_PUBLIC_HOST_SERVER_AUTH=$NEXT_PUBLIC_HOST_SERVER_AUTH" >> .env.production
+echo "NEXT_PUBLIC_PORT_SERVER_AUTH=$NEXT_PUBLIC_PORT_SERVER_AUTH" >> .env.production
+echo "NEXT_PUBLIC_SERVER_API_HOST=$NEXT_PUBLIC_SERVER_API_HOST" >> .env.production
+echo "NEXT_PUBLIC_SERVER_API_PORT=$NEXT_PUBLIC_SERVER_API_PORT" >> .env.production
+
+mv .env.production $host
+
 # Restarting compose
 
 docker compose down; docker compose build --no-cache; yes | docker builder prune; docker compose up -d
